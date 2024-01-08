@@ -1,0 +1,6 @@
+Mock CMB Likelihood
+-------------------
+
+Citation
+--------
+

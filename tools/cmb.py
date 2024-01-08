@@ -56,13 +56,13 @@ class CMB():
 
         nis = []
         for i in range(len(sigma_T)):
-            ninst = sigma_T[i]**2 * \
-                np.exp(l*(l+1)*theta_planck[i]**2/(8*np.log(2))) #one over ninst
-            nis.append(1/ninst)
+            # from montepython code https://github.com/brinckmann/montepython_public/blob/3.6/montepython/likelihood_class.py#L1096
+            ninst = sigma_T[i]**-2 * \
+                np.exp(-l*(l+1)*theta_planck[i]**2/(8*np.log(2))) #one over ninst
+            nis.append(ninst)
         ninst = np.array(nis).T
         ninst = np.sum(ninst, axis=1)
         noise = 1/ninst
-        noise *= (2*np.pi)/(l*(l+1))
         return noise
     
     def get_camb_model(self, theta):
