@@ -14,31 +14,64 @@ theta_bad = [0.01146527, 0.09108639, 1.08655005,
 planck, l, ps, ns = cmb_generator.get_planck()
 # get an estimate of the planck instrument noise
 noise = cmb_generator.get_planck_noise(l)
-noise /= np.sqrt(2*l+1)
+#noise /= np.sqrt(2*l+1)
 
-plt.plot(l, planck*(l*(l+1)/(2*np.pi)),label='Planck Data')
-plt.plot(l, noise*(l*(l+1)/(2*np.pi)), label='Planck Noise Estimate (My Code)')
+fig, axes = plt.subplots(1, 2, figsize=(13,5), sharey=True)
 
-realistic = np.loadtxt('planck_realistic_noise_from_montepython.txt')
+# build the likelihood function with planck data
+likelihood = cmb_generator.get_likelihood(planck, l, noise)
+# evaluate planck likelihood at the planck best fit parameters
+
+axes[0].plot(l, planck*(l*(l+1)/(2*np.pi)),label='Planck Data')
+axes[0].plot(l, noise*(l*(l+1)/(2*np.pi)), label='Planck Noise Estimate (My Code)')
+planck += noise
+
+print(likelihood(theta))
+print(likelihood(theta_bad))
+
+"""realistic = np.loadtxt('planck_realistic_noise_from_montepython.txt')
 rl = realistic[:,0]
 nl = realistic[:,1]
 nl *= (rl*(rl+1)/(2*np.pi))
-#nl /= np.sqrt(2*rl+1)
-plt.plot(rl, nl,label='Planck Realistic Noise (Monte Python)')
 
-plt.loglog()
-plt.grid()
-plt.xlabel(r'$\ell$')
-plt.ylabel(r'$\ell(\ell+1)C_\ell/(2\pi)$')
-plt.legend()
+axes[0].plot(rl, nl,label='Planck Realistic Noise (Monte Python)')"""
+
+axes[0].grid()
+axes[0].set_xlabel(r'$\ell$')
+axes[0].set_ylabel(r'$\ell(\ell+1)C_\ell/(2\pi)$')
+axes[0].legend()
+
+
+cl, sample = cmb_generator.get_samples(l, theta, noise)
+
+planck -= noise
+cl -= noise
+sample -= noise
+
+axes[1].plot(l, planck*(l*(l+1)/(2*np.pi)),label='Planck Data')
+axes[1].plot(l, cl*(l*(l+1)/(2*np.pi)), label='CAMB Model\n (Planck Best Fit Params)')
+axes[1].plot(l, sample*(l*(l+1)/(2*np.pi)), label='Sampled Model')
+axes[1].legend()
+axes[1].set_title('With My Noise')
+axes[1].loglog()
+axes[0].loglog()
+
+
+"""cl, sample = cmb_generator.get_samples(l, theta)
+
+axes[2].plot(l, planck*(l*(l+1)/(2*np.pi)),label='Planck Data')
+axes[2].plot(l, cl*(l*(l+1)/(2*np.pi)), label='CAMB Model\n (Planck Best Fit Params)')
+axes[2].plot(l, sample*(l*(l+1)/(2*np.pi)), label='Sampled Model')
+axes[2].legend()
+axes[2].set_title('No Noise')"""
+
+axes[1].set_xlabel(r'$\ell$')
+#axes[2].set_xlabel(r'$\ell$')
+axes[1].grid()
+#axes[2].grid()
+
 plt.tight_layout()
 plt.savefig('planck_noise_comparison.png', dpi=300)
 plt.legend()
 
 plt.show()
-
-# build the likelihood function with planck data
-likelihood = cmb_generator.get_likelihood(planck, l, noise)
-# evaluate planck likelihood at the planck best fit parameters
-print(likelihood(theta))
-print(likelihood(theta_bad))
