@@ -64,7 +64,7 @@ class CMB():
         ninst = np.array(nis).T
         ninst = np.sum(ninst, axis=1)
         noise = 1/ninst
-        return noise#/np.sqrt(2*l+1)
+        return noise
     
     def get_camb_model(self, theta):
         self.pars.set_cosmology(ombh2=theta[0], omch2=theta[1],
