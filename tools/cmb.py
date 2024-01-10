@@ -40,20 +40,21 @@ class CMB():
         for i in range(len(tt)):
             if tt[i][0] == 'Planck binned      ':
                 l.append(tt[i][2].astype('float')) # ell
+                ps.append(tt[i][6].astype('float')) # error on power spectrum
+                ns.append(tt[i][5].astype('float')) # power spectrum
                 p.append(tt[i][4].astype('float')) # power spectrum
         p, l = np.array(p), np.array(l)
+        ps, ns = np.array(ps), np.array(ns)
         p *= (2*np.pi)/(l*(l+1)) # convert to C_l
-        return p, l
+        return p, l, ps, ns
     
     def get_planck_noise(self, l):
 
-        # from montepython https://github.com/brinckmann/montepython_public/blob/3.6/montepython/likelihoods/fake_planck_bluebook/fake_planck_bluebook.data
-        theta_planck = np.array([10, 7.1, 5.0]) # beam size in arcmin
-        sigma_T = np.array([68.1, 42.6, 65.4]) # in muK arcmin
-
+        # from table 4 in https://arxiv.org/pdf/1807.06205.pdf
+        theta_planck = np.array([9.66, 7.22, 4.90]) # beam size in arcmin
         theta_planck *= np.array([np.pi/60/180]) # convert to radians
-        sigma_T *= np.array([np.pi/60/180]) # convert to radians
-
+        sigma_T = np.array([1.29, 0.55, 0.78])*np.pi/180 
+        
         nis = []
         for i in range(len(sigma_T)):
             # from montepython code https://github.com/brinckmann/montepython_public/blob/3.6/montepython/likelihood_class.py#L1096
@@ -63,7 +64,7 @@ class CMB():
         ninst = np.array(nis).T
         ninst = np.sum(ninst, axis=1)
         noise = 1/ninst
-        return noise
+        return noise#/np.sqrt(2*l+1)
     
     def get_camb_model(self, theta):
         self.pars.set_cosmology(ombh2=theta[0], omch2=theta[1],
