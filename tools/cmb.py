@@ -222,6 +222,7 @@ class CMB():
         sample /= (2*l + 1) # divide by 2l+1
 
         if noise is not None:
+            # because the noise is well known subtract it from the sample
             cl = cl - noise # remove noise from theory
             sample = sample - noise # remove noise from sample
         
