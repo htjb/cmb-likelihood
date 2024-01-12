@@ -63,48 +63,6 @@ class CMB():
         p *= (2*np.pi)/(l*(l+1)) # convert to C_l
         return p, l
     
-    def get_noise(self, l, 
-                theta=np.array([9.66, 7.22, 4.90])*np.pi/60/180,
-                sigma_T=np.array([1.29, 0.55, 0.78])*np.pi/180):
-
-        """
-        Function to get the noise power estimate. This noise
-        is associated with the resolution of the instrument and is
-        hence dependent on the beam size and sensitivity of the
-        instrument per degree.
-
-        Defaults to Planck noise. Planck values are from
-        table 4 in https://arxiv.org/pdf/1807.06205.pdf
-
-        Parameters
-        ----------
-        l: array
-            The multipoles.
-        
-        theta: array
-            The beam size in radians for each frequency.
-        
-        sigma_T: array
-            The sensitivity in microK radians for each frequency.
-        
-        Returns
-        -------
-        noise: array
-            The noise power at each multipole.
-        """
-        
-        # calculation from https://arxiv.org/abs/1612.08270
-        nis = []
-        for i in range(len(sigma_T)):
-            ninst = sigma_T[i]**-2 * \
-                np.exp(-l*(l+1)*theta[i]**2/(8*np.log(2))) #one over ninst
-            nis.append(ninst)
-        ninst = np.array(nis).T
-        ninst = np.sum(ninst, axis=1)
-        noise = 1/ninst
-
-        return noise
-    
     def get_camb_model(self, theta):
 
         """
