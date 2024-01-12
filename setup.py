@@ -7,7 +7,7 @@ def readme(short=False):
         else:
             return f.read()
 
-def get_version_from_readme() -> str:
+def get_version_from_readme():
     """Get current version of package from README.rst"""
     readme_text = readme()
     for line in readme_text.splitlines():
