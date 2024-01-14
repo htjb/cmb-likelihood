@@ -41,28 +41,6 @@ class CMB():
         theta[5] = UniformPrior(2.6, 3.8)(cube[5]) # log(10^10*As)
         return theta
     
-    def get_planck(self):
-
-        """
-        Function to load in the planck power spectrum data.
-
-        Returns
-        -------
-        p: power spectrum
-        l: the multipoles
-        """
-
-        tt = np.loadtxt('TT_power_spec.txt', delimiter=',', dtype=str)
-
-        l, p = [], []
-        for i in range(len(tt)):
-            if tt[i][0] == 'Planck binned      ':
-                l.append(tt[i][2].astype('float')) # ell
-                p.append(tt[i][4].astype('float')) # power spectrum
-        p, l = np.array(p), np.array(l)
-        p *= (2*np.pi)/(l*(l+1)) # convert to C_l
-        return p, l
-    
     def get_camb_model(self, theta):
 
         """
