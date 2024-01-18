@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools>=61.0", "toml"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,4 +14,4 @@ dependencies = ["numpy", "scipy", "pypolychord", "camb"]
 repository = "https://github.com/htjb/cmb_likelihood"
 
 [tool.setuptools]
-py-modules = ['cmblike']
+packages = ["cmblike"]
