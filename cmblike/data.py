@@ -41,4 +41,5 @@ class get_data():
                           'wmap_binned.txt')
         l = wmap[:, 0]
         p = wmap[:, 3]
+        p *= (2*np.pi)/(l*(l+1)) # convert to C_l
         return p, l
