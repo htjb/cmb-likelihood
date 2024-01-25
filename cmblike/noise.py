@@ -54,7 +54,7 @@ class wmap_noise(cmb_noise):
     def __init__(self, l):
         theta= np.array([0.82, 0.62, 0.49, 0.33, 0.21])*np.pi/180
         #taken from https://wmap.gsfc.nasa.gov/mission/observatory_sens.html#:~:text=WMAP%20Sensitivity,x%200.3°%20square%20pixel.
-        sigma_T=np.array([35, 35, 35, 35, 35])*(0.3)*np.pi/180
+        sigma_T=np.array([35, 35, 35, 35, 35])*(0.3)**2*np.pi/180
         super().__init__(l, theta, sigma_T)
 
 
