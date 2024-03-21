@@ -5,14 +5,48 @@ from pypolychord.priors import UniformPrior
 
 
 class CMB():
-    def __init__(self):
+    def __init__(self, **kwargs):
 
         """
         Class to generate CMB power spectra from CAMB, build and sample
         a likelihood function for a given data set and noise.
+
+        Parameters:
+        -----------
+        parameters: list
+            The cosmological parameters to sample over. Defaults to
+            ['omegabh2', 'omegach2', 'thetaMC', 'tau', 'ns', 'As'].
+        prior_mins: list
+            The minimum values for the priors. Defaults to
+            [0.01, 0.08, 0.97, 0.01, 0.8, 2.6].
+        prior_maxs: list
+            The maximum values for the priors. Defaults to
+            [0.085, 0.21, 1.5, 0.16, 1.2, 3.8].
+        default_parameter_values: list
+            The default values for the cosmological parameters (inspired by
+            Planck observations). Defaults to
+            [0.022, 0.12, 1.04, 0.055, 0.965, 3.0].
         """
         
         self.pars = camb.CAMBparams()
+
+        self.default_params = \
+            ['omegabh2', 'omegach2', 'thetaMC', 'tau', 'ns', 'As']
+        self.default_parameter_values = \
+                [0.022, 0.12, 1.04, 0.055, 0.965, 3.0]
+
+        self.parameters = kwargs.pop('parameters', self.default_params)
+        self.prior_mins = kwargs.pop('prior_mins', 
+                [0.01, 0.08, 0.97, 0.01, 0.8, 2.6])
+        self.prior_maxs = kwargs.pop('prior_maxs', 
+                [0.085, 0.21, 1.5, 0.16, 1.2, 3.8])
+        
+        # reorder inputs to expectation based on default
+        idx = [self.parameters.index(p) for p in self.default_params 
+               if p in self.parameters]
+        self.parameters = [self.parameters[i] for i in idx]
+        self.prior_mins = [self.prior_mins[i] for i in idx]
+        self.prior_maxs = [self.prior_maxs[i] for i in idx]
         
     def prior(self, cube):
 
@@ -33,12 +67,9 @@ class CMB():
         """
 
         theta = np.zeros(len(cube))
-        theta[0] = UniformPrior(0.01, 0.085)(cube[0]) # omegabh2
-        theta[1] = UniformPrior(0.08, 0.21)(cube[1]) # omegach2
-        theta[2] = UniformPrior(0.97, 1.5)(cube[2]) # 100*thetaMC
-        theta[3] = UniformPrior(0.01, 0.16)(cube[3]) # tau
-        theta[4] = UniformPrior(0.8, 1.2)(cube[4]) # ns
-        theta[5] = UniformPrior(2.6, 3.8)(cube[5]) # log(10^10*As)
+        for i in range(len(cube)):
+            theta[i] = UniformPrior(self.prior_mins[i], 
+                        self.prior_maxs[i])(cube[i])
         return theta
     
     def get_camb_model(self, theta):
@@ -56,6 +87,12 @@ class CMB():
         cl: array
             The CMB power spectrum.
         """
+
+        # find any missing parameters and insert the default values
+        missing = list(sorted(set(self.default_params) - set(self.parameters)))
+        missingidx = [self.default_params.index(m) for m in missing][::-1]
+        for i in missingidx:
+            theta = np.insert(theta, i, self.default_parameter_values[i])
 
         self.pars.set_cosmology(ombh2=theta[0], omch2=theta[1],
                                 tau=theta[3], cosmomc_theta=theta[2]/100,
