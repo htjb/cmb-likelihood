@@ -36,6 +36,11 @@ class CMB():
                 [0.022, 0.12, 1.04, 0.055, 0.965, 3.0]
 
         self.parameters = kwargs.pop('parameters', self.default_params)
+
+        if np.any([p not in self.default_params for p in self.parameters]):
+            raise ValueError('Parameters not recognised. Accepted parameters are: ' +
+                             ', '.join(self.default_params))
+
         self.prior_mins = kwargs.pop('prior_mins', 
                 [0.01, 0.08, 0.97, 0.01, 0.8, 2.6])
         self.prior_maxs = kwargs.pop('prior_maxs', 

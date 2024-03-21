@@ -6,7 +6,7 @@
 | cmb_likelihood | Toy CMB Likelihood Code |
 |----------------|-------------------------|
 | Authors | Harry T.J. Bevins |
-| Version | 0.2.0.beta |
+| Version | 0.2.1.beta |
 | Homepage | |
 |Documentation | |
 
