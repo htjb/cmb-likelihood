@@ -1,18 +1,16 @@
-===================
-Mock CMB Likelihood
-===================
+# Mock CMB Likelihood
 
-Introduction
-------------
 
-:cmb_likelihood: Toy CMB Likelihood Code
-:Authors: Harry T.J. Bevins
-:Version: 0.1.0.beta
-:Homepage:  
-:Documentation:
+## Introduction
 
-Installation
-------------
+| cmb_likelihood | Toy CMB Likelihood Code |
+|----------------|-------------------------|
+| Authors | Harry T.J. Bevins |
+| Version | 0.1.0.beta |
+| Homepage | |
+|Documentation | |
+
+## Installation
 
 Currently can install the package with
 
@@ -21,8 +19,7 @@ git clone https://github.com/htjb/cmb-likelihood
 pip install .
 ```
 
-The point
----------
+## The point
 
 Given a C_l^{TT} data set and a noise power spectrum
 
@@ -46,10 +43,4 @@ the package allows users to;
     given a data set
 
 
-
-
-
-
-Citation
---------
-
+## Citation
