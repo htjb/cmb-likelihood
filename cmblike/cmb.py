@@ -1,8 +1,9 @@
 import numpy as np
 import camb
 from scipy.stats import chi2
+import cosmopower as cp
 from pypolychord.priors import UniformPrior
-
+import warnings
 
 class CMB():
     def __init__(self, **kwargs):
@@ -29,11 +30,12 @@ class CMB():
         """
         
         self.pars = camb.CAMBparams()
+        self.path_to_cp = kwargs.pop('path_to_cp', None)
 
         self.default_params = \
-            ['omegabh2', 'omegach2', 'thetaMC', 'tau', 'ns', 'As']
+            ['omegabh2', 'omegach2', 'thetaMC', 'tau', 'ns', 'As', 'h']
         self.default_parameter_values = \
-                [0.022, 0.12, 1.04, 0.055, 0.965, 3.0]
+                [0.022, 0.12, 1.04, 0.055, 0.965, 3.0, 0.67]
 
         self.parameters = kwargs.pop('parameters', self.default_params)
 
@@ -42,9 +44,9 @@ class CMB():
                              ', '.join(self.default_params))
 
         self.prior_mins = kwargs.pop('prior_mins', 
-                [0.01, 0.08, 0.97, 0.01, 0.8, 2.6])
+                [0.005, 0.08, 0.97, 0.01, 0.8, 2.6, 0.5])
         self.prior_maxs = kwargs.pop('prior_maxs', 
-                [0.085, 0.21, 1.5, 0.16, 1.2, 3.8])
+                [0.04, 0.21, 1.5, 0.16, 1.2, 3.8, 0.9])
         
         # reorder inputs to expectation based on default
         idx = [self.parameters.index(p) for p in self.default_params 
@@ -77,6 +79,30 @@ class CMB():
                         self.prior_maxs[i])(cube[i])
         return theta
     
+    def get_cosmopower_model(self, theta):
+
+        warnings.warn('Note cosmopower ignores thetaMC.')
+        # find any missing parameters and insert the default values
+        missing = list(sorted(set(self.default_params) - set(self.parameters)))
+        missingidx = [self.default_params.index(m) for m in missing][::-1]
+        for i in missingidx:
+            theta = np.insert(theta, i, self.default_parameter_values[i])
+
+        cp_nn = cp.cosmopower_NN(restore=True, 
+                                restore_filename= self.path_to_cp \
+                                +'/cosmopower/trained_models/CP_paper/CMB/cmb_TT_NN')
+        print(theta)
+        params = {'omega_b': [theta[0]],
+                'omega_cdm': [theta[1]],
+                'h': [theta[-1]],
+                'tau_reio': [theta[3]],
+                'n_s': [theta[4]],
+                'ln10^{10}A_s': [theta[5]],
+                }
+        
+        spectra = cp_nn.ten_to_predictions_np(params)[0]*1e12*2.7255**2
+        return spectra
+    
     def get_camb_model(self, theta):
 
         """
@@ -92,6 +118,8 @@ class CMB():
         cl: array
             The CMB power spectrum.
         """
+
+        warnings.warn('camb ignores h and uses thetaMC.')
 
         # find any missing parameters and insert the default values
         missing = list(sorted(set(self.default_params) - set(self.parameters)))
@@ -111,7 +139,7 @@ class CMB():
         cl *= (2*np.pi)/(np.arange(len(cl))*(np.arange(len(cl))+1)) # convert to C_l
         return cl
     
-    def get_likelihood(self, data, l, noise=None):
+    def get_likelihood(self, data, l, noise=None, cp=False):
 
         """
         Function to build a likelihood for a given data set and noise.
@@ -155,9 +183,15 @@ class CMB():
             logL: float
                 The log likelihood.
             """
-
-            cl = self.get_camb_model(theta)
+            if cp:
+                cl = self.get_cosmopower_model(theta)
+            else:
+                cl = self.get_camb_model(theta)
             cl = np.interp(l, np.arange(len(cl)), cl)
+            import matplotlib.pyplot as plt
+            plt.plot(l, cl)
+            plt.plot(l, data)
+            plt.show()
 
             if noise is not None:
                 cl += noise
@@ -170,7 +204,7 @@ class CMB():
             return logL, []
         return likelihood
     
-    def get_samples(self, l, theta, noise=None):
+    def get_samples(self, l, theta, noise=None, cp=None):
 
         """
         Code to generate observations of a theoretical CMB power spectrum.
@@ -186,8 +220,10 @@ class CMB():
         noise: array
             The noise associated with the data. If None then no noise is added.
         """
-
-        cl = self.get_camb_model(theta)
+        if cp:
+            cl =self.get_cosmopower_model(theta)
+        else:
+            cl = self.get_camb_model(theta)
         cl = np.interp(l, np.arange(len(cl)), cl)
 
         # if noise then add noise
