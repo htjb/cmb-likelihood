@@ -188,10 +188,6 @@ class CMB():
             else:
                 cl = self.get_camb_model(theta)
             cl = np.interp(l, np.arange(len(cl)), cl)
-            import matplotlib.pyplot as plt
-            plt.plot(l, cl)
-            plt.plot(l, data)
-            plt.show()
 
             if noise is not None:
                 cl += noise
