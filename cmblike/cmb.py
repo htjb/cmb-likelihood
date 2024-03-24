@@ -91,7 +91,7 @@ class CMB():
         cp_nn = cp.cosmopower_NN(restore=True, 
                                 restore_filename= self.path_to_cp \
                                 +'/cosmopower/trained_models/CP_paper/CMB/cmb_TT_NN')
-        print(theta)
+        
         params = {'omega_b': [theta[0]],
                 'omega_cdm': [theta[1]],
                 'h': [theta[-1]],
