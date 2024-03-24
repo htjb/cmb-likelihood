@@ -32,6 +32,11 @@ class CMB():
         self.pars = camb.CAMBparams()
         self.path_to_cp = kwargs.pop('path_to_cp', None)
 
+        if self.path_to_cp:
+            self.cp_nn = cp.cosmopower_NN(restore=True, 
+                                restore_filename= self.path_to_cp \
+                                +'/cosmopower/trained_models/CP_paper/CMB/cmb_TT_NN')
+
         self.default_params = \
             ['omegabh2', 'omegach2', 'thetaMC', 'tau', 'ns', 'As', 'h']
         self.default_parameter_values = \
@@ -87,10 +92,6 @@ class CMB():
         missingidx = [self.default_params.index(m) for m in missing][::-1]
         for i in missingidx:
             theta = np.insert(theta, i, self.default_parameter_values[i])
-
-        cp_nn = cp.cosmopower_NN(restore=True, 
-                                restore_filename= self.path_to_cp \
-                                +'/cosmopower/trained_models/CP_paper/CMB/cmb_TT_NN')
         
         params = {'omega_b': [theta[0]],
                 'omega_cdm': [theta[1]],
@@ -100,7 +101,7 @@ class CMB():
                 'ln10^{10}A_s': [theta[5]],
                 }
         
-        spectra = cp_nn.ten_to_predictions_np(params)[0]*1e12*2.7255**2
+        spectra = self.cp_nn.ten_to_predictions_np(params)[0]*1e12*2.7255**2
         return spectra
     
     def get_camb_model(self, theta):
