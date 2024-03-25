@@ -101,7 +101,7 @@ class CMB():
                 'ln10^{10}A_s': [theta[5]],
                 }
         
-        spectra = self.cp_nn.ten_to_predictions_np(params)[0]*1e12*2.7255**2
+        spectra = self.cp_nn.ten_to_predictions_np(params)[0]*1e12*2.725**2
         return spectra
     
     def get_camb_model(self, theta):
@@ -186,9 +186,10 @@ class CMB():
             """
             if cp:
                 cl = self.get_cosmopower_model(theta)
+                cl = np.interp(l, self.cp_nn.modes, cl)
             else:
                 cl = self.get_camb_model(theta)
-            cl = np.interp(l, np.arange(len(cl)), cl)
+                cl = np.interp(l, np.arange(len(cl)), cl)
 
             if noise is not None:
                 cl += noise
@@ -197,7 +198,11 @@ class CMB():
             x = (2*l + 1)* data/cl
             logL = -0.5*(-2*chi2(2*l+1).logpdf(x) 
                     - 2*np.log((2*l+1)/cl)).sum()
-            
+            """if logL > -50:
+                import matplotlib.pyplot as plt
+                plt.plot(l, l*(l+1)*cl/(2*np.pi))
+                plt.plot(l, l*(l+1)*data/(2*np.pi))
+                plt.show()"""
             return logL, []
         return likelihood
     
