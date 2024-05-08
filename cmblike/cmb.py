@@ -140,7 +140,7 @@ class CMB():
         cl *= (2*np.pi)/(np.arange(len(cl))*(np.arange(len(cl))+1)) # convert to C_l
         return cl
     
-    def get_likelihood(self, data, l, noise=None, cp=False):
+    def get_likelihood(self, data, l, bins, noise=None, cp=False):
 
         """
         Function to build a likelihood for a given data set and noise.
@@ -186,10 +186,9 @@ class CMB():
             """
             if cp:
                 cl = self.get_cosmopower_model(theta)
-                cl = np.interp(l, self.cp_nn.modes, cl)
             else:
                 cl = self.get_camb_model(theta)
-                cl = np.interp(l, np.arange(len(cl)), cl)
+            cl = self.rebin(cl, bins)
 
             if noise is not None:
                 cl += noise
@@ -206,7 +205,18 @@ class CMB():
             return logL, []
         return likelihood
     
-    def get_samples(self, l, theta, noise=None, cp=None):
+    def rebin(self, signal, bins):
+        indices = bins - 2
+        binned_signal = []
+        for i in range(len(indices)):
+            if indices[i, 0] == indices[i, 1]:
+                binned_signal.append(signal[int(indices[i, 0])])
+            else:
+                binned_signal.append(
+                    np.mean(signal[int(indices[i, 0]):int(indices[i, 1])]))
+        return np.array(binned_signal)
+    
+    def get_samples(self, l, theta, bins, noise=None, cp=None):
 
         """
         Code to generate observations of a theoretical CMB power spectrum.
@@ -226,7 +236,7 @@ class CMB():
             cl =self.get_cosmopower_model(theta)
         else:
             cl = self.get_camb_model(theta)
-        cl = np.interp(l, np.arange(len(cl)), cl)
+        cl = self.rebin(cl, bins)
 
         # if noise then add noise
         if noise is not None:
