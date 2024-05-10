@@ -20,7 +20,7 @@ class get_data():
 
         l, p = [], []
         for i in range(len(tt)):
-            if tt[i][0] == 'Planck binned      ':
+            if tt[i][0] == 'Planck binned      ' or tt[i][0] == 'Planck unbinned    ':
                 l.append(tt[i][2].astype('float')) # ell
                 p.append(tt[i][4].astype('float')) # power spectrum
         p, l = np.array(p), np.array(l)
