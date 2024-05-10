@@ -213,7 +213,7 @@ class CMB():
                 binned_signal.append(signal[int(indices[i, 0])])
             else:
                 binned_signal.append(
-                    np.mean(signal[int(indices[i, 0]):int(indices[i, 1])]))
+                    np.mean(signal[int(indices[i, 0]):int(indices[i, 1])+1]))
         return np.array(binned_signal)
     
     def get_samples(self, l, theta, bins, noise=None, cp=None):
