@@ -239,7 +239,6 @@ class CMB():
             cl = cl + noise
 
         cl = self.rebin(cl, bins)
-        noise = self.rebin(noise, bins)
 
         # draw a sample of (2l+1)*obs/theory from a chi2 distribution
         sample = chi2.rvs(df=2*l + 1, size=len(l))
