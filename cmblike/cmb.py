@@ -213,21 +213,25 @@ class CMB():
                     np.mean(signal[int(indices[i, 0]):int(indices[i, 1])+1]))
         return np.array(binned_signal)
     
-    def get_samples(self, theta, bins, noise=None, cp=None):
+    def get_samples(self, theta, bins, noise=None, cp=False):
 
         """
         Code to generate observations of a theoretical CMB power spectrum.
 
         Parameters
         ----------
-        l: array
-            The multipoles.
-        
         theta: array
             The cosmological parameters as generated from self.prior.
-        
+
+        bins: array
+            The bin edges for the data.
+
         noise: array
             The noise associated with the data. If None then no noise is added.
+            Assumes that the noise is at every l between 2 and 2508.
+        
+        cp: bool
+            Whether to use cosmopower or not. Defaults to False.
         """
         if cp:
             cl =self.get_cosmopower_model(theta)
@@ -240,7 +244,6 @@ class CMB():
 
         l = np.arange(0, len(cl))+2
 
-        # bin after sampling....
         # draw a sample of (2l+1)*obs/theory from a chi2 distribution
         sample = chi2.rvs(df=2*l + 1, size=len(l))
         sample *= cl # multiply by theory
