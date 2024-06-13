@@ -95,10 +95,10 @@ class CMB():
         
         params = {'omega_b': [theta[0]],
                 'omega_cdm': [theta[1]],
-                'h': [theta[-1]],
-                'tau_reio': [theta[3]],
-                'n_s': [theta[4]],
-                'ln10^{10}A_s': [theta[5]],
+                'h': [theta[5]],
+                'tau_reio': [theta[2]],
+                'n_s': [theta[3]],
+                'ln10^{10}A_s': [theta[4]],
                 }
         
         spectra = self.cp_nn.ten_to_predictions_np(params)[0]*1e12*2.725**2
@@ -188,20 +188,17 @@ class CMB():
                 cl = self.get_cosmopower_model(theta)
             else:
                 cl = self.get_camb_model(theta)
-            cl = self.rebin(cl, bins)
-
+            
             if noise is not None:
                 cl += noise
+
+            cl = self.rebin(cl, bins)
             
             # likelihood is a reduced chi squared distribution
             x = (2*l + 1)* data/cl
             logL = -0.5*(-2*chi2(2*l+1).logpdf(x) 
                     - 2*np.log((2*l+1)/cl)).sum()
-            """if logL > -50:
-                import matplotlib.pyplot as plt
-                plt.plot(l, l*(l+1)*cl/(2*np.pi))
-                plt.plot(l, l*(l+1)*data/(2*np.pi))
-                plt.show()"""
+            
             return logL, []
         return likelihood
     
@@ -236,11 +233,13 @@ class CMB():
             cl =self.get_cosmopower_model(theta)
         else:
             cl = self.get_camb_model(theta)
-        cl = self.rebin(cl, bins)
-
+        
         # if noise then add noise
         if noise is not None:
             cl = cl + noise
+
+        cl = self.rebin(cl, bins)
+        noise = self.rebin(noise, bins)
 
         # draw a sample of (2l+1)*obs/theory from a chi2 distribution
         sample = chi2.rvs(df=2*l + 1, size=len(l))

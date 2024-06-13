@@ -44,14 +44,14 @@ class cmb_noise():
         return noise, self.l
 
 class planck_noise(cmb_noise):
-    def __init__(self, l=np.arange(2, 2500)):
+    def __init__(self, l=np.arange(2, 2509)):
         #table 4 in https://arxiv.org/pdf/1807.06205.pdf
         theta= np.array([9.66, 7.22, 4.90])*np.pi/60/180
         sigma_T=np.array([1.29, 0.55, 0.78])*np.pi/180
         super().__init__(l, theta, sigma_T)
     
 class wmap_noise(cmb_noise):
-    def __init__(self, l=np.arange(2, 2500)):
+    def __init__(self, l=np.arange(2, 2509)):
         theta= np.array([0.82, 0.62, 0.49, 0.33, 0.21])*np.pi/180
         #taken from https://wmap.gsfc.nasa.gov/mission/observatory_sens.html#:~:text=WMAP%20Sensitivity,x%200.3°%20square%20pixel.
         sigma_T=np.array([35, 35, 35, 35, 35])*(0.3)**2*np.pi/180
