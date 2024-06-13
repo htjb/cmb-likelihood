@@ -213,7 +213,7 @@ class CMB():
                     np.mean(signal[int(indices[i, 0]):int(indices[i, 1])+1]))
         return np.array(binned_signal)
     
-    def get_samples(self, l, theta, bins, noise=None, cp=None):
+    def get_samples(self, theta, bins, noise=None, cp=None):
 
         """
         Code to generate observations of a theoretical CMB power spectrum.
@@ -238,11 +238,15 @@ class CMB():
         if noise is not None:
             cl = cl + noise
 
-        cl = self.rebin(cl, bins)
+        l = np.arange(0, len(cl))+2
 
+        # bin after sampling....
         # draw a sample of (2l+1)*obs/theory from a chi2 distribution
         sample = chi2.rvs(df=2*l + 1, size=len(l))
         sample *= cl # multiply by theory
         sample /= (2*l + 1) # divide by 2l+1
+
+        cl = self.rebin(cl, bins)
+        sample = self.rebin(sample, bins)
         
         return cl, sample
