@@ -95,14 +95,18 @@ class CMB():
 
         Parameters
         ----------
-        l: array
-            The multipoles.
-        
         theta: array
             The cosmological parameters as generated from self.prior.
-        
+
+        bins: array
+            The bin edges for the data.
+
         noise: array
             The noise associated with the data. If None then no noise is added.
+            Assumes that the noise is at every l between 2 and 2508.
+        
+        cp: bool
+            Whether to use cosmopower or not. Defaults to False.
         """
         if cp:
             cl =self.get_cosmopower_model(theta)
@@ -113,17 +117,14 @@ class CMB():
         if noise is not None:
             cl = cl + noise
 
-        cl = self.rebin(cl, bins)
-        noise = self.rebin(noise, bins)
+        l = np.arange(0, len(cl))+2
 
         # draw a sample of (2l+1)*obs/theory from a chi2 distribution
         sample = chi2.rvs(df=2*l + 1, size=len(l))
         sample *= cl # multiply by theory
         sample /= (2*l + 1) # divide by 2l+1
 
-        if noise is not None:
-            # because the noise is well known subtract it from the sample
-            cl = cl - noise # remove noise from theory
-            sample = sample - noise # remove noise from sample
+        cl = self.rebin(cl, bins)
+        sample = self.rebin(sample, bins)
         
         return cl, sample
