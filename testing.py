@@ -13,6 +13,9 @@ cmbs = CMB(path_to_cp='/Users/harrybevins/Documents/Software/cosmopower')
 
 theta = np.array([0.0224, 0.120, 0.054, 0.965, 3.0, 0.674])
 parameters = ['omegabh2', 'omegach2', 'tau', 'ns', 'As', 'h']
+params = dict(zip(parameters, theta))
+
+cl = cmbs.get_cosmopower_model(params)
 
 lowl_bins = np.array([np.arange(2, 31), np.arange(2, 31)]).T
 highl_bins = np.array([np.arange(30, 2500-30, 30), 
