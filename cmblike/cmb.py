@@ -95,10 +95,10 @@ class CMB():
         
         params = {'omega_b': [theta[0]],
                 'omega_cdm': [theta[1]],
-                'h': [theta[5]],
-                'tau_reio': [theta[2]],
-                'n_s': [theta[3]],
-                'ln10^{10}A_s': [theta[4]],
+                'h': [theta[-1]],
+                'tau_reio': [theta[3]],
+                'n_s': [theta[4]],
+                'ln10^{10}A_s': [theta[5]],
                 }
         
         spectra = self.cp_nn.ten_to_predictions_np(params)[0]*1e12*2.725**2
